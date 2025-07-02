@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8" />
+  <title>CSV Konvertor</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; max-width: 800px; margin: auto; }
+    textarea, input { width: 100%; margin-bottom: 10px; }
+    pre { background: #f0f0f0; padding: 10px; }
+  </style>
+</head>
+<body>
+  <h1>🧾 CSV Konvertor</h1>
+
+  <input type="file" id="fileInput" /><br/>
+
+  <textarea id="jsonInput" placeholder='[{"name":"Ali","age":30}]' rows="5"></textarea>
+  <textarea id="csvInput" placeholder='name,age\nAli,30' rows="5"></textarea>
+
+  <button onclick="submitForm()">Yuborish</button>
+
+  <h3>Natija</h3>
+  <strong>CSV:</strong>
+  <pre id="csvOut"></pre>
+
+  <strong>JSON:</strong>
+  <pre id="jsonOut"></pre>
+
+  <script>
+    async function submitForm() {
+      const file = document.getElementById('fileInput').files[0];
+      const json = document.getElementById('jsonInput').value;
+      const csv = document.getElementById('csvInput').value;
+
+      const formData = new FormData();
+      if (file) formData.append('file', file);
+      else if (json) formData.append('data', json);
+      else if (csv) formData.append('csv', csv);
+      else return alert('Iltimos, fayl yoki matn kiriting.');
+
+      try {
+        const res = await fetch('http://localhost:3000/csv', {
+          method: 'POST',
+          body: formData
+        });
+        const result = await res.json();
+        document.getElementById('csvOut').textContent = result.csv || '';
+        document.getElementById('jsonOut').textContent = JSON.stringify(result.data, null, 2) || '';
+      } catch (err) {
+        alert('Xatolik yuz berdi: ' + err.message);
+      }
+    }
+  </script>
+</body>
+</html>
